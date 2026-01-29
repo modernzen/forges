@@ -7,7 +7,7 @@
 <a href="https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fgetlate-dev%2Flatewiz&env=LATE_API_KEY&envDescription=Your%20Late%20API%20key%20from%20getlate.dev&envLink=https%3A%2F%2Fgetlate.dev%2Fdashboard%2Fapi-keys&project-name=latewiz&repository-name=latewiz"><img src="https://vercel.com/button" alt="Deploy with Vercel" height="32"></a>
 <a href="https://railway.app/template/latewiz?referralCode=late"><img src="https://railway.app/button.svg" alt="Deploy on Railway" height="32"></a>
 
-![LateWiz Screenshot](./docs/screenshot.png)
+![LateWiz Screenshot](./docs/screenshot.png?v=2)
 
 ## Features
 
