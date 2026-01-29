@@ -58,7 +58,7 @@ export const PLATFORM_COLORS: Record<Platform, string> = {
   facebook: "#1877F2",
   threads: "#000000",
   bluesky: "#0085FF",
-  snapchat: "#FFFC00",
+  snapchat: "#F7D900",
   googlebusiness: "#4285F4",
   reddit: "#FF4500",
   telegram: "#26A5E4",
