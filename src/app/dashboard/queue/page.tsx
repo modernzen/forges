@@ -13,7 +13,7 @@ import {
   DAYS_OF_WEEK,
   type QueueSlot,
 } from "@/hooks";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
@@ -48,9 +48,6 @@ export default function QueuePage() {
     hour: 9,
     minute: 0,
   });
-
-  // With Select dropdowns, slots are always valid
-  const isValidSlot = true;
 
   const { data: slotsData, isLoading: slotsLoading } = useQueueSlots();
   const { data: previewData, isLoading: previewLoading } = useQueuePreview(10);
@@ -106,134 +103,148 @@ export default function QueuePage() {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="mx-auto max-w-2xl space-y-6">
       {/* Page header */}
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold">Queue</h1>
-        <Button size="sm" onClick={() => setShowAddSlot(true)}>
-          <Plus className="mr-1.5 h-4 w-4" />
-          Add Slot
-        </Button>
+      <div>
+        <h1 className="text-2xl font-bold">Queue</h1>
+        <p className="text-muted-foreground">
+          Set up your posting schedule.
+        </p>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-2">
-        {/* Queue Schedule */}
-        <Card>
-          <CardHeader>
+      {/* Weekly Schedule */}
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0">
+          <div className="space-y-1">
             <CardTitle className="flex items-center gap-2 text-base">
               <Clock className="h-4 w-4" />
-              Weekly Schedule
+              Posting Times
             </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {slotsLoading ? (
-              <QueueScheduleSkeleton />
-            ) : slots.length === 0 ? (
-              <div className="py-8 text-center">
-                <Clock className="mx-auto h-12 w-12 text-muted-foreground/50" />
-                <p className="mt-4 text-sm text-muted-foreground">
-                  No posting times set up yet.
-                </p>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="mt-4"
-                  onClick={() => setShowAddSlot(true)}
-                >
-                  Add Time Slot
-                </Button>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {DAYS_OF_WEEK.map((day, index) => {
-                  const daySlots = slotsByDay[index] || [];
-                  if (daySlots.length === 0) return null;
+            <CardDescription>
+              Configure when your queued posts should be published.
+            </CardDescription>
+          </div>
+          <Button size="sm" onClick={() => setShowAddSlot(true)}>
+            <Plus className="mr-1.5 h-4 w-4" />
+            Add Slot
+          </Button>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {slotsLoading ? (
+            <QueueScheduleSkeleton />
+          ) : slots.length === 0 ? (
+            <div className="rounded-lg bg-muted p-6 text-center">
+              <Clock className="mx-auto h-10 w-10 text-muted-foreground/50" />
+              <p className="mt-3 text-sm text-muted-foreground">
+                No posting times set up yet.
+              </p>
+              <Button
+                variant="outline"
+                size="sm"
+                className="mt-4"
+                onClick={() => setShowAddSlot(true)}
+              >
+                Add Time Slot
+              </Button>
+            </div>
+          ) : (
+            DAYS_OF_WEEK.map((day, index) => {
+              const daySlots = slotsByDay[index] || [];
+              if (daySlots.length === 0) return null;
 
-                  return (
-                    <div key={day} className="space-y-2">
-                      <p className="text-sm font-medium">{day}</p>
-                      <div className="flex flex-wrap gap-2">
-                        {daySlots
-                          .sort((a, b) => ((a.hour ?? 0) * 60 + (a.minute ?? 0)) - ((b.hour ?? 0) * 60 + (b.minute ?? 0)))
-                          .map((slot, i) => (
-                            <Badge
-                              key={i}
-                              variant="secondary"
-                              className="gap-1 pr-1"
-                            >
-                              {formatTime(slot.hour, slot.minute)}
-                              <button
-                                onClick={() => handleRemoveSlot(slot)}
-                                className="ml-1 rounded-full p-0.5 hover:bg-muted"
-                                aria-label={`Remove ${formatTime(slot.hour, slot.minute)} slot`}
-                              >
-                                <Trash2 className="h-3 w-3" />
-                              </button>
-                            </Badge>
-                          ))}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+              return (
+                <div key={day} className="flex items-start justify-between">
+                  <span className="text-sm font-medium text-muted-foreground w-24">
+                    {day}
+                  </span>
+                  <div className="flex flex-1 flex-wrap gap-2">
+                    {daySlots
+                      .sort((a, b) => ((a.hour ?? 0) * 60 + (a.minute ?? 0)) - ((b.hour ?? 0) * 60 + (b.minute ?? 0)))
+                      .map((slot, i) => (
+                        <Badge
+                          key={i}
+                          variant="secondary"
+                          className="gap-1 pr-1"
+                        >
+                          {formatTime(slot.hour, slot.minute)}
+                          <button
+                            onClick={() => handleRemoveSlot(slot)}
+                            className="ml-1 rounded-full p-0.5 hover:bg-muted"
+                            aria-label={`Remove ${formatTime(slot.hour, slot.minute)} slot`}
+                          >
+                            <Trash2 className="h-3 w-3" />
+                          </button>
+                        </Badge>
+                      ))}
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </CardContent>
+      </Card>
 
-        {/* Upcoming Slots */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base">
-              <Calendar className="h-4 w-4" />
-              Upcoming Slots
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {previewLoading ? (
-              <UpcomingSlotsSkeleton />
-            ) : upcomingSlots.length === 0 ? (
-              <p className="py-8 text-center text-sm text-muted-foreground">
+      {/* Upcoming Slots */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Calendar className="h-4 w-4" />
+            Next Up
+          </CardTitle>
+          <CardDescription>
+            Your upcoming queue slots.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {previewLoading ? (
+            <UpcomingSlotsSkeleton />
+          ) : upcomingSlots.length === 0 ? (
+            <div className="rounded-lg bg-muted p-4 text-center">
+              <p className="text-sm text-muted-foreground">
                 No upcoming slots. Add time slots to your schedule.
               </p>
-            ) : (
-              <div className="space-y-2">
-                {upcomingSlots.slice(0, 5).map((slot, i) => (
-                  <div
-                    key={i}
-                    className="flex items-center justify-between rounded-lg bg-muted p-3"
-                  >
-                    <span className="text-sm">
-                      {format(parseISO(slot), "EEEE, MMM d")}
-                    </span>
-                    <Badge variant="outline">
-                      {format(parseISO(slot), "h:mm a")}
-                    </Badge>
-                  </div>
-                ))}
+            </div>
+          ) : (
+            upcomingSlots.slice(0, 5).map((slot, i) => (
+              <div
+                key={i}
+                className="flex items-center justify-between rounded-lg bg-muted p-3"
+              >
+                <span className="text-sm">
+                  {format(parseISO(slot), "EEEE, MMM d")}
+                </span>
+                <Badge variant="outline">
+                  {format(parseISO(slot), "h:mm a")}
+                </Badge>
               </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+            ))
+          )}
+        </CardContent>
+      </Card>
 
       {/* Queued Posts */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0">
-          <CardTitle className="flex items-center gap-2 text-base">
-            <ListOrdered className="h-4 w-4" />
-            Queued Posts
-          </CardTitle>
+          <div className="space-y-1">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <ListOrdered className="h-4 w-4" />
+              Posts in Queue
+            </CardTitle>
+            <CardDescription>
+              {queuedPosts.length} {queuedPosts.length === 1 ? "post" : "posts"} queued
+            </CardDescription>
+          </div>
           <Button variant="outline" size="sm" asChild>
             <Link href="/dashboard/compose">Add Post</Link>
           </Button>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-3">
           {postsLoading ? (
             <QueuedPostsSkeleton />
           ) : queuedPosts.length === 0 ? (
-            <div className="py-8 text-center">
-              <ListOrdered className="mx-auto h-12 w-12 text-muted-foreground/50" />
-              <p className="mt-4 text-sm text-muted-foreground">
+            <div className="rounded-lg bg-muted p-6 text-center">
+              <ListOrdered className="mx-auto h-10 w-10 text-muted-foreground/50" />
+              <p className="mt-3 text-sm text-muted-foreground">
                 No posts in queue. Create a post and add it to the queue.
               </p>
               <Button variant="outline" size="sm" className="mt-4" asChild>
@@ -241,18 +252,16 @@ export default function QueuePage() {
               </Button>
             </div>
           ) : (
-            <div className="space-y-2">
-              {queuedPosts.map((post: any, index: number) => (
-                <div key={post._id} className="flex items-center gap-3">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted text-sm font-medium flex-shrink-0">
-                    {index + 1}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <PostListItem post={post} />
-                  </div>
+            queuedPosts.map((post: any, index: number) => (
+              <div key={post._id} className="flex items-center gap-3 rounded-lg bg-muted p-3">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-background text-sm font-medium flex-shrink-0">
+                  {index + 1}
                 </div>
-              ))}
-            </div>
+                <div className="flex-1 min-w-0">
+                  <PostListItem post={post} />
+                </div>
+              </div>
+            ))
           )}
         </CardContent>
       </Card>
@@ -326,9 +335,11 @@ export default function QueuePage() {
                 </Select>
               </div>
             </div>
-            <p className="text-sm text-muted-foreground">
-              Preview: {formatTime(newSlot.hour, newSlot.minute)} on {DAYS_OF_WEEK[newSlot.dayOfWeek]}
-            </p>
+            <div className="rounded-lg bg-muted p-3">
+              <p className="text-sm text-muted-foreground">
+                Preview: <span className="font-medium text-foreground">{formatTime(newSlot.hour, newSlot.minute)}</span> on <span className="font-medium text-foreground">{DAYS_OF_WEEK[newSlot.dayOfWeek]}</span>
+              </p>
+            </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowAddSlot(false)}>
@@ -336,7 +347,7 @@ export default function QueuePage() {
             </Button>
             <Button
               onClick={handleAddSlot}
-              disabled={updateSlotsMutation.isPending || !isValidSlot}
+              disabled={updateSlotsMutation.isPending}
             >
               {updateSlotsMutation.isPending && (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -354,9 +365,9 @@ function QueueScheduleSkeleton() {
   return (
     <div className="animate-pulse space-y-4">
       {[0, 1, 2].map((i) => (
-        <div key={i} className="space-y-2">
+        <div key={i} className="flex items-center justify-between">
           <div className="h-4 w-20 rounded bg-muted" />
-          <div className="flex flex-wrap gap-2">
+          <div className="flex gap-2">
             <div className="h-6 w-16 rounded-full bg-muted" />
             <div className="h-6 w-16 rounded-full bg-muted" />
           </div>
@@ -368,7 +379,7 @@ function QueueScheduleSkeleton() {
 
 function UpcomingSlotsSkeleton() {
   return (
-    <div className="animate-pulse space-y-2">
+    <div className="animate-pulse space-y-3">
       {[0, 1, 2, 3, 4].map((i) => (
         <div key={i} className="flex items-center justify-between rounded-lg bg-muted p-3">
           <div className="h-4 w-32 rounded bg-background" />
@@ -381,16 +392,13 @@ function UpcomingSlotsSkeleton() {
 
 function QueuedPostsSkeleton() {
   return (
-    <div className="animate-pulse space-y-2">
+    <div className="animate-pulse space-y-3">
       {[0, 1, 2].map((i) => (
-        <div key={i} className="flex items-start gap-3 rounded-lg border border-border p-3">
-          <div className="h-12 w-12 shrink-0 rounded bg-muted" />
+        <div key={i} className="flex items-center gap-3 rounded-lg bg-muted p-3">
+          <div className="h-8 w-8 rounded-full bg-background" />
           <div className="flex-1 space-y-2">
-            <div className="h-4 w-3/4 rounded bg-muted" />
-            <div className="flex items-center gap-2">
-              <div className="h-6 w-6 rounded-full bg-muted" />
-              <div className="h-5 w-16 rounded bg-muted" />
-            </div>
+            <div className="h-3 w-3/4 rounded bg-background" />
+            <div className="h-2 w-1/2 rounded bg-background" />
           </div>
         </div>
       ))}

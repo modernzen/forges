@@ -8,6 +8,7 @@ import { subMonths } from "date-fns/subMonths";
 import { startOfMonth } from "date-fns/startOfMonth";
 import { endOfMonth } from "date-fns/endOfMonth";
 import { useCalendarPosts, useDeletePost } from "@/hooks";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -33,6 +34,7 @@ import {
   ChevronRight,
   Plus,
   Loader2,
+  Calendar,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -71,7 +73,7 @@ export default function CalendarPage() {
     }
   };
 
-  // Stats for the month - memoized to avoid recalculation on every render
+  // Stats for the month
   const monthPosts = useMemo(() => {
     const monthStart = startOfMonth(currentDate);
     const monthEnd = endOfMonth(currentDate);
@@ -92,54 +94,78 @@ export default function CalendarPage() {
   );
 
   return (
-    <div className="space-y-3">
-      {/* Header with controls */}
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="icon" className="h-8 w-8" onClick={handlePrevMonth}>
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-          <h1 className="min-w-36 text-center text-base font-semibold">
-            {format(currentDate, "MMMM yyyy")}
-          </h1>
-          <Button variant="outline" size="icon" className="h-8 w-8" onClick={handleNextMonth}>
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-          <Button variant="outline" size="sm" className="h-8" onClick={handleToday}>
-            Today
-          </Button>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <Badge variant="outline" className="text-xs bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800">
-            {scheduledCount} scheduled
-          </Badge>
-          <Badge variant="outline" className="text-xs bg-green-50 dark:bg-green-950/30 text-green-700 dark:text-green-300 border-green-200 dark:border-green-800">
-            {publishedCount} published
-          </Badge>
-          <Button size="sm" className="h-8" asChild>
-            <Link href="/dashboard/compose">
-              <Plus className="mr-1.5 h-4 w-4" />
-              New Post
-            </Link>
-          </Button>
-        </div>
+    <div className="mx-auto max-w-4xl space-y-6">
+      {/* Page header */}
+      <div>
+        <h1 className="text-2xl font-bold">Calendar</h1>
+        <p className="text-muted-foreground">
+          View and manage your scheduled posts.
+        </p>
       </div>
 
-      {/* Calendar */}
-      {isLoading ? (
-        <CalendarSkeleton />
-      ) : (
-        <CalendarGrid
-          currentDate={currentDate}
-          posts={posts}
-          onPostClick={setSelectedPostId}
-          onDayClick={(date) => {
-            // Could open compose with pre-filled date
-            console.log("Day clicked:", date);
-          }}
-        />
-      )}
+      {/* Month Navigation */}
+      <Card>
+        <CardContent className="py-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="icon" className="h-8 w-8" onClick={handlePrevMonth}>
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              <h2 className="min-w-36 text-center text-base font-semibold">
+                {format(currentDate, "MMMM yyyy")}
+              </h2>
+              <Button variant="outline" size="icon" className="h-8 w-8" onClick={handleNextMonth}>
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+              <Button variant="outline" size="sm" className="h-8" onClick={handleToday}>
+                Today
+              </Button>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <Badge variant="outline" className="text-xs bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800">
+                {scheduledCount} scheduled
+              </Badge>
+              <Badge variant="outline" className="text-xs bg-green-50 dark:bg-green-950/30 text-green-700 dark:text-green-300 border-green-200 dark:border-green-800">
+                {publishedCount} published
+              </Badge>
+              <Button size="sm" className="h-8" asChild>
+                <Link href="/dashboard/compose">
+                  <Plus className="mr-1.5 h-4 w-4" />
+                  New Post
+                </Link>
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Calendar Grid */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Calendar className="h-4 w-4" />
+            {format(currentDate, "MMMM")} Schedule
+          </CardTitle>
+          <CardDescription>
+            Click on a post to view details or a day to create a new post.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="p-0">
+          {isLoading ? (
+            <CalendarSkeleton />
+          ) : (
+            <CalendarGrid
+              currentDate={currentDate}
+              posts={posts}
+              onPostClick={setSelectedPostId}
+              onDayClick={(date) => {
+                console.log("Day clicked:", date);
+              }}
+            />
+          )}
+        </CardContent>
+      </Card>
 
       {/* Post detail dialog */}
       <Dialog
@@ -154,7 +180,6 @@ export default function CalendarPage() {
             <PostCard
               post={selectedPost}
               onEdit={(_id) => {
-                // Navigate to edit page
                 setSelectedPostId(null);
               }}
               onDelete={(id) => {
@@ -197,7 +222,7 @@ function CalendarSkeleton() {
   const weekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
   return (
-    <div className="animate-pulse rounded-lg border border-border bg-card">
+    <div className="animate-pulse">
       {/* Week day headers */}
       <div className="grid grid-cols-7 border-b border-border">
         {weekDays.map((day) => (
@@ -222,7 +247,6 @@ function CalendarSkeleton() {
             <div className="flex items-center justify-between">
               <div className="h-7 w-7 rounded-full bg-muted" />
             </div>
-            {/* Skeleton post placeholders for some cells */}
             {index % 3 === 0 && (
               <div className="mt-1 space-y-1">
                 <div className="h-5 w-full rounded bg-muted" />

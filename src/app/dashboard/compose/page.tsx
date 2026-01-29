@@ -5,15 +5,13 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useCreatePost, useAccounts, useCurrentProfileId, type UploadedMedia } from "@/hooks";
 import { useAppStore } from "@/stores";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
 import { PlatformSelector } from "./_components/platform-selector";
 import { MediaUploader } from "./_components/media-uploader";
 import { SchedulePicker, type ScheduleType } from "./_components/schedule-picker";
-import { Loader2, Send } from "lucide-react";
+import { Loader2, Send, PenSquare, Users, Calendar, Image } from "lucide-react";
 import type { Platform } from "@/lib/late-api";
 
 export default function ComposePage() {
@@ -99,86 +97,110 @@ export default function ComposePage() {
   };
 
   return (
-    <div className="mx-auto max-w-4xl space-y-4">
+    <div className="mx-auto max-w-2xl space-y-6">
       {/* Page header */}
-      <h1 className="text-xl font-semibold">Create Post</h1>
+      <div>
+        <h1 className="text-2xl font-bold">Create Post</h1>
+        <p className="text-muted-foreground">
+          Compose and schedule your content.
+        </p>
+      </div>
 
-      <div className="grid gap-4 lg:grid-cols-3">
-        {/* Main content area */}
-        <div className="space-y-4 lg:col-span-2">
-          {/* Content */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Content</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Textarea
-                  placeholder="What's on your mind?"
-                  value={content}
-                  onChange={(e) => setContent(e.target.value)}
-                  rows={5}
-                  className="resize-none"
-                />
-                <div className="flex justify-end">
-                  <span
-                    className={`text-xs ${
-                      charCount > charLimit
-                        ? "text-destructive"
-                        : "text-muted-foreground"
-                    }`}
-                  >
-                    {charCount} / {charLimit}
-                  </span>
-                </div>
-              </div>
+      {/* Content */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-base">
+            <PenSquare className="h-4 w-4" />
+            Content
+          </CardTitle>
+          <CardDescription>
+            Write your post content and add media.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <Textarea
+              placeholder="What's on your mind?"
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              rows={8}
+              className="resize-none"
+            />
+            <div className="flex justify-end">
+              <span
+                className={`text-xs ${
+                  charCount > charLimit
+                    ? "text-destructive"
+                    : "text-muted-foreground"
+                }`}
+              >
+                {charCount} / {charLimit}
+              </span>
+            </div>
+          </div>
 
-              <Separator />
+          <div className="rounded-lg bg-muted p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <Image className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm font-medium">Media</span>
+            </div>
+            <MediaUploader media={media} onMediaChange={setMedia} />
+          </div>
+        </CardContent>
+      </Card>
 
-              <div className="space-y-2">
-                <Label>Media</Label>
-                <MediaUploader media={media} onMediaChange={setMedia} />
-              </div>
-            </CardContent>
-          </Card>
+      {/* Platforms */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Users className="h-4 w-4" />
+            Select Accounts
+            {selectedAccountIds.length > 0 && (
+              <span className="text-muted-foreground font-normal">
+                ({selectedAccountIds.length} selected)
+              </span>
+            )}
+          </CardTitle>
+          <CardDescription>
+            Choose which accounts to publish to.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <PlatformSelector
+            selectedAccountIds={selectedAccountIds}
+            onSelectionChange={setSelectedAccountIds}
+            hasVideo={hasVideo}
+            hasImages={hasImages}
+          />
+        </CardContent>
+      </Card>
 
-          {/* Schedule */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">When to Post</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <SchedulePicker
-                scheduleType={scheduleType}
-                scheduledDate={scheduledDate}
-                scheduledTime={scheduledTime}
-                onScheduleTypeChange={setScheduleType}
-                onDateChange={setScheduledDate}
-                onTimeChange={setScheduledTime}
-              />
-            </CardContent>
-          </Card>
-        </div>
+      {/* Schedule */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Calendar className="h-4 w-4" />
+            When to Post
+          </CardTitle>
+          <CardDescription>
+            Publish now, schedule for later, or add to queue.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <SchedulePicker
+            scheduleType={scheduleType}
+            scheduledDate={scheduledDate}
+            scheduledTime={scheduledTime}
+            onScheduleTypeChange={setScheduleType}
+            onDateChange={setScheduledDate}
+            onTimeChange={setScheduledTime}
+          />
+        </CardContent>
+      </Card>
 
-        {/* Sidebar - Platform selection */}
-        <div className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">
-                Platforms ({selectedAccountIds.length})
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <PlatformSelector
-                selectedAccountIds={selectedAccountIds}
-                onSelectionChange={setSelectedAccountIds}
-                hasVideo={hasVideo}
-                hasImages={hasImages}
-              />
-            </CardContent>
-          </Card>
-
-          {/* Submit button */}
+      {/* Submit */}
+      <Card>
+        <CardContent className="pt-6">
           <Button
             onClick={handleSubmit}
             disabled={!canSubmit}
@@ -203,12 +225,12 @@ export default function ComposePage() {
           </Button>
 
           {selectedAccountIds.length === 0 && (
-            <p className="text-center text-sm text-muted-foreground">
+            <p className="mt-3 text-center text-sm text-muted-foreground">
               Select at least one account to post
             </p>
           )}
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
