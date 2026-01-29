@@ -2,10 +2,8 @@
 
 **Your social media scheduling wizard.** Schedule posts across 13 platforms with a single, beautiful interface.
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fgetlate-dev%2Flatewiz&env=LATE_API_KEY&envDescription=Your%20Late%20API%20key%20from%20getlate.dev&envLink=https%3A%2F%2Fgetlate.dev%2Fdashboard%2Fapi-keys&project-name=latewiz&repository-name=latewiz)
-[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/template/latewiz?referralCode=late)
-
-![LateWiz Screenshot](./docs/screenshot.png)
+<a href="https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fgetlate-dev%2Flatewiz&env=LATE_API_KEY&envDescription=Your%20Late%20API%20key%20from%20getlate.dev&envLink=https%3A%2F%2Fgetlate.dev%2Fdashboard%2Fapi-keys&project-name=latewiz&repository-name=latewiz"><img src="https://vercel.com/button" alt="Deploy with Vercel" height="32"></a>
+<a href="https://railway.app/template/latewiz?referralCode=late"><img src="https://railway.app/button.svg" alt="Deploy on Railway" height="32"></a>
 
 ## Features
 
