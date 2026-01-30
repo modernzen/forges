@@ -77,7 +77,7 @@ docker run -p 3000:3000 -e LATE_API_KEY=sk_... latewiz
 
 ## Tech Stack
 
-- [Next.js 14](https://nextjs.org/) - React framework
+- [Next.js 16](https://nextjs.org/) - React framework
 - [Tailwind CSS](https://tailwindcss.com/) - Styling
 - [shadcn/ui](https://ui.shadcn.com/) - UI components
 - [TanStack Query](https://tanstack.com/query) - Data fetching
@@ -90,18 +90,20 @@ docker run -p 3000:3000 -e LATE_API_KEY=sk_... latewiz
 latewiz/
 ├── src/
 │   ├── app/                    # Next.js App Router
-│   │   ├── (dashboard)/        # Dashboard routes
+│   │   ├── dashboard/          # Dashboard routes
 │   │   │   ├── compose/        # Post composer
 │   │   │   ├── calendar/       # Calendar view
 │   │   │   ├── accounts/       # Connected accounts
 │   │   │   ├── queue/          # Queue management
 │   │   │   └── settings/       # User settings
-│   │   └── callback/           # OAuth callbacks
+│   │   ├── callback/           # OAuth callbacks
+│   │   └── api/                # API routes
 │   ├── components/
 │   │   ├── ui/                 # shadcn/ui components
-│   │   ├── composer/           # Post composer components
-│   │   ├── calendar/           # Calendar components
+│   │   ├── accounts/           # Account components
+│   │   ├── posts/              # Post components
 │   │   └── shared/             # Shared components
+│   ├── hooks/                  # React hooks
 │   ├── lib/
 │   │   └── late-api/           # Late API utilities
 │   └── stores/                 # Zustand stores
@@ -133,9 +135,8 @@ npx tsc --noEmit
 
 - [LateWiz Live Site](https://latewiz.com)
 - [Late Documentation](https://docs.getlate.dev)
-- [Late API Reference](https://docs.getlate.dev/api)
 - [GitHub Issues](https://github.com/getlate-dev/latewiz/issues)
-- [Discord Community](https://discord.gg/late)
+- [Telegram Community](https://t.me/latewiz)
 
 ## License
 
