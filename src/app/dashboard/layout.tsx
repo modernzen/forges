@@ -70,7 +70,7 @@ export default function DashboardLayout({
 }) {
   const router = useRouter();
   const pathname = usePathname();
-  const { apiKey, usageStats, logout } = useAuthStore();
+  const { apiKey, usageStats, logout, hasHydrated } = useAuthStore();
   const { sidebarOpen, setSidebarOpen, toggleSidebar, defaultProfileId, setDefaultProfileId } = useAppStore();
   const { theme, setTheme } = useTheme();
   const { data: profilesData } = useProfiles();
@@ -78,19 +78,20 @@ export default function DashboardLayout({
   const profiles = profilesData?.profiles || [];
   const currentProfile = profiles.find((p: any) => p._id === defaultProfileId) || profiles[0];
 
-  // Redirect to home if not authenticated
+  // Redirect to home if not authenticated (only after hydration)
   useEffect(() => {
-    if (!apiKey) {
+    if (hasHydrated && !apiKey) {
       router.push("/");
     }
-  }, [apiKey, router]);
+  }, [apiKey, hasHydrated, router]);
 
   const handleLogout = () => {
     logout();
     router.push("/");
   };
 
-  if (!apiKey) {
+  // Don't render until hydrated to avoid flash
+  if (!hasHydrated || !apiKey) {
     return null;
   }
 

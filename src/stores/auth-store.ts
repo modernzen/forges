@@ -18,10 +18,12 @@ interface AuthState {
   usageStats: UsageStats | null;
   isValidating: boolean;
   error: string | null;
+  hasHydrated: boolean;
   setApiKey: (key: string | null) => void;
   setUsageStats: (stats: UsageStats | null) => void;
   setIsValidating: (validating: boolean) => void;
   setError: (error: string | null) => void;
+  setHasHydrated: (hydrated: boolean) => void;
   logout: () => void;
 }
 
@@ -32,10 +34,12 @@ export const useAuthStore = create<AuthState>()(
       usageStats: null,
       isValidating: false,
       error: null,
+      hasHydrated: false,
       setApiKey: (key) => set({ apiKey: key, error: null }),
       setUsageStats: (stats) => set({ usageStats: stats }),
       setIsValidating: (validating) => set({ isValidating: validating }),
       setError: (error) => set({ error }),
+      setHasHydrated: (hydrated) => set({ hasHydrated: hydrated }),
       logout: () =>
         set({
           apiKey: null,
@@ -49,6 +53,9 @@ export const useAuthStore = create<AuthState>()(
         apiKey: state.apiKey,
         usageStats: state.usageStats,
       }),
+      onRehydrateStorage: () => (state) => {
+        state?.setHasHydrated(true);
+      },
     }
   )
 );

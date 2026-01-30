@@ -22,7 +22,7 @@ import { useTheme } from "next-themes";
 
 export default function LandingPage() {
   const router = useRouter();
-  const { apiKey } = useAuthStore();
+  const { apiKey, hasHydrated } = useAuthStore();
   const { theme, setTheme } = useTheme();
   const [showApiKeyModal, setShowApiKeyModal] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -33,10 +33,15 @@ export default function LandingPage() {
 
   // Redirect to dashboard if already authenticated
   useEffect(() => {
-    if (apiKey) {
+    if (hasHydrated && apiKey) {
       router.push("/dashboard");
     }
-  }, [apiKey, router]);
+  }, [apiKey, hasHydrated, router]);
+
+  // Don't render until hydrated to avoid flash
+  if (!hasHydrated) {
+    return null;
+  }
 
   const features = [
     {
@@ -69,6 +74,14 @@ export default function LandingPage() {
           <Logo size="md" />
 
           <div className="flex items-center gap-4">
+            <a
+              href="https://getlate.dev/#pricing"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Pricing
+            </a>
             <a
               href="https://github.com/getlate-dev/latewiz"
               target="_blank"
