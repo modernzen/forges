@@ -22,6 +22,12 @@ import {
   Sun,
   Github,
 } from "lucide-react";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { useTheme } from "next-themes";
 
 export default function LandingPage() {
@@ -268,14 +274,18 @@ export default function LandingPage() {
             </p>
           </div>
 
-          <div className="mt-12 space-y-6">
+          <Accordion type="single" collapsible className="mt-12">
             {faqs.map((faq, index) => (
-              <div key={index} className="rounded-lg border border-border bg-card p-6">
-                <h3 className="font-semibold">{faq.question}</h3>
-                <p className="mt-2 text-muted-foreground">{faq.answer}</p>
-              </div>
+              <AccordionItem key={index} value={`item-${index}`}>
+                <AccordionTrigger className="text-left">
+                  {faq.question}
+                </AccordionTrigger>
+                <AccordionContent className="text-muted-foreground">
+                  {faq.answer}
+                </AccordionContent>
+              </AccordionItem>
             ))}
-          </div>
+          </Accordion>
         </div>
       </section>
 
