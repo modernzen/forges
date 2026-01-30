@@ -113,8 +113,14 @@ export default function LandingPage() {
 
   return (
     <>
-      <div className="gradient-orb gradient-orb-top" />
-      <div className="gradient-orb gradient-orb-bottom" />
+      <div
+        style={{ position: 'fixed', top: -150, right: -150, width: 500, height: 500, borderRadius: '50%', filter: 'blur(100px)', pointerEvents: 'none', zIndex: 10 }}
+        className="bg-primary/20"
+      />
+      <div
+        style={{ position: 'fixed', bottom: -150, left: -150, width: 500, height: 500, borderRadius: '50%', filter: 'blur(100px)', pointerEvents: 'none', zIndex: 10 }}
+        className="bg-primary/10"
+      />
       <div className="relative min-h-screen">
 
       {/* Header */}
