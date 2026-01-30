@@ -213,7 +213,7 @@ export default function DashboardLayout({
                       className="h-3 w-3 rounded-full"
                       style={{ backgroundColor: currentProfile?.color || '#888' }}
                     />
-                    <span className="max-w-24 truncate hidden sm:inline">
+                    <span className="max-w-24 truncate">
                       {currentProfile?.name || 'Select Profile'}
                     </span>
                     <ChevronDown className="h-4 w-4" />
