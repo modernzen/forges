@@ -312,27 +312,18 @@ export default function DashboardLayout({
             const isActive =
               pathname === item.href ||
               (item.href !== "/dashboard" && pathname.startsWith(item.href));
-            const isCompose = item.href === "/dashboard/compose";
 
             return (
               <Link
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "flex flex-col items-center justify-center gap-1 rounded-xl px-3 py-2 transition-colors",
-                  isCompose
-                    ? isActive
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-primary/10 text-primary"
-                    : isActive
-                      ? "text-primary"
-                      : "text-muted-foreground"
+                  "flex flex-col items-center justify-center gap-1 px-3 py-2 transition-colors",
+                  isActive ? "text-primary" : "text-muted-foreground"
                 )}
               >
-                <item.icon className={cn("h-5 w-5", isCompose && "h-6 w-6")} />
-                <span className={cn("text-[10px] font-medium", isCompose && "text-xs")}>
-                  {item.label}
-                </span>
+                <item.icon className="h-5 w-5" />
+                <span className="text-[10px] font-medium">{item.label}</span>
               </Link>
             );
           })}
