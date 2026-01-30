@@ -12,12 +12,22 @@ import {
   Calendar,
   Clock,
   Image as ImageIcon,
-  Sparkles,
+  Share2,
+  Layers,
+  BarChart3,
+  Server,
+  Scale,
   ArrowRight,
   Moon,
   Sun,
   Github,
 } from "lucide-react";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { useTheme } from "next-themes";
 
 export default function LandingPage() {
@@ -47,22 +57,75 @@ export default function LandingPage() {
     {
       icon: Calendar,
       title: "Visual Calendar",
-      description: "See all your scheduled content at a glance with our intuitive calendar view.",
+      description: "See all your scheduled content at a glance",
     },
     {
       icon: Clock,
       title: "Smart Queue",
-      description: "Set up posting times once and let LateWiz handle the rest automatically.",
+      description: "Set posting times once, auto-schedule the rest",
     },
     {
       icon: ImageIcon,
       title: "Media Support",
-      description: "Upload images and videos up to 5GB with automatic optimization.",
+      description: "Upload images and videos up to 5GB",
     },
     {
-      icon: Sparkles,
-      title: "Platform Settings",
-      description: "TikTok privacy, YouTube titles, Pinterest boards, and more.",
+      icon: Share2,
+      title: "13 Platforms",
+      description: "Instagram, TikTok, YouTube, X, LinkedIn & more",
+    },
+    {
+      icon: Layers,
+      title: "Bulk Scheduling",
+      description: "Schedule multiple posts at once",
+    },
+    {
+      icon: BarChart3,
+      title: "Analytics Ready",
+      description: "Track performance with Late's analytics",
+    },
+    {
+      icon: Server,
+      title: "Self-Hostable",
+      description: "Deploy on your own infrastructure",
+    },
+    {
+      icon: Scale,
+      title: "MIT Licensed",
+      description: "Free forever, no vendor lock-in",
+    },
+  ];
+
+  const faqs = [
+    {
+      question: "What is LateWiz?",
+      answer:
+        "LateWiz is a free, open-source social media scheduling tool built on the Late API. It lets you schedule posts across 13 platforms from a single interface.",
+    },
+    {
+      question: "Is LateWiz really free?",
+      answer:
+        "Yes! LateWiz is MIT licensed and completely free. You just need a Late API key (free tier available) to connect your social accounts.",
+    },
+    {
+      question: "What platforms are supported?",
+      answer:
+        "Instagram, TikTok, YouTube, X (Twitter), LinkedIn, Facebook, Pinterest, Threads, Bluesky, Snapchat, Telegram, Discord, and Slack.",
+    },
+    {
+      question: "Can I self-host LateWiz?",
+      answer:
+        "Absolutely. Clone the repo, add your Late API key, and deploy anywhere - Vercel, Netlify, your own server, etc.",
+    },
+    {
+      question: "How do I get a Late API key?",
+      answer:
+        "Sign up at getlate.dev, create a project, and copy your API key. Free tier includes generous limits for personal use.",
+    },
+    {
+      question: "Is my data secure?",
+      answer:
+        "LateWiz doesn't store your social media credentials. All authentication is handled securely through the Late API using OAuth.",
     },
   ];
 
@@ -201,8 +264,33 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Open Source Section */}
+      {/* FAQ Section */}
       <section className="py-20">
+        <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
+          <div className="text-center">
+            <h2 className="text-3xl font-bold">Frequently Asked Questions</h2>
+            <p className="mt-4 text-muted-foreground">
+              Got questions? We&apos;ve got answers.
+            </p>
+          </div>
+
+          <Accordion type="single" collapsible className="mt-12">
+            {faqs.map((faq, index) => (
+              <AccordionItem key={index} value={`item-${index}`}>
+                <AccordionTrigger className="text-left">
+                  {faq.question}
+                </AccordionTrigger>
+                <AccordionContent className="text-muted-foreground">
+                  {faq.answer}
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        </div>
+      </section>
+
+      {/* Open Source Section */}
+      <section className="border-t border-border py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="rounded-2xl border border-border bg-card p-8 text-center sm:p-12">
             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-muted">

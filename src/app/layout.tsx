@@ -16,11 +16,12 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "LateWiz - Social Media Scheduling Made Simple",
+  title: "LateWiz - Open Source Social Media Scheduling",
   description:
     "Your social media scheduling wizard. Schedule posts across 13 platforms with a single tool, powered by Late.",
   keywords: [
     "social media scheduler",
+    "open source",
     "instagram scheduler",
     "tiktok scheduler",
     "twitter scheduler",
@@ -38,7 +39,7 @@ export const metadata: Metadata = {
   },
   manifest: "/site.webmanifest",
   openGraph: {
-    title: "LateWiz - Social Media Scheduling Made Simple",
+    title: "LateWiz - Open Source Social Media Scheduling",
     description:
       "Your social media scheduling wizard. Schedule posts across 13 platforms with a single tool.",
     url: "https://latewiz.com",
@@ -49,13 +50,13 @@ export const metadata: Metadata = {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "LateWiz - Social Media Scheduling Made Simple",
+        alt: "LateWiz - Open Source Social Media Scheduling",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "LateWiz - Social Media Scheduling Made Simple",
+    title: "LateWiz - Open Source Social Media Scheduling",
     description:
       "Your social media scheduling wizard. Schedule posts across 13 platforms with a single tool.",
     images: ["/og-image.png"],
