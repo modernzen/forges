@@ -30,6 +30,7 @@ export interface QueueSchedule {
   isDefault?: boolean;
   createdAt?: string;
   updatedAt?: string;
+  nextSlots?: string[]; // Computed upcoming slot times as ISO strings
 }
 
 // Helper functions for time conversion

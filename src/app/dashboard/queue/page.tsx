@@ -6,7 +6,6 @@ import { toZonedTime, format as formatTz } from "date-fns-tz";
 import { toast } from "sonner";
 import {
   useQueues,
-  useQueuePreview,
   useCreateQueue,
   useUpdateQueue,
   useDeleteQueue,
@@ -98,7 +97,6 @@ export default function QueuePage() {
 
   const { timezone: appTimezone } = useAppStore();
   const { data: queuesData, isLoading: queuesLoading } = useQueues();
-  const { data: previewData, isLoading: previewLoading } = useQueuePreview(10);
   const { data: postsData, isLoading: postsLoading } = useScheduledPosts(10);
   const createQueueMutation = useCreateQueue();
   const updateQueueMutation = useUpdateQueue();
@@ -112,7 +110,26 @@ export default function QueuePage() {
     const zonedDate = toZonedTime(date, appTimezone);
     return formatTz(zonedDate, formatStr, { timeZone: appTimezone });
   };
-  const upcomingSlots = (previewData?.slots || []) as string[];
+
+  // Merge upcoming slots from all active queues
+  const upcomingSlots = useMemo(() => {
+    const allSlots: { time: string; queueName: string; queueId: string }[] = [];
+    for (const queue of queues) {
+      if (queue.active && queue.nextSlots) {
+        for (const slot of queue.nextSlots) {
+          allSlots.push({
+            time: slot,
+            queueName: queue.name || "Default Queue",
+            queueId: queue._id || "",
+          });
+        }
+      }
+    }
+    // Sort by time
+    allSlots.sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime());
+    return allSlots.slice(0, 10);
+  }, [queues]);
+
   const queuedPosts = ((postsData?.posts || []) as any[]).filter(
     (p) => p.queuedFromProfile
   );
@@ -501,11 +518,11 @@ export default function QueuePage() {
             Next Up
           </CardTitle>
           <CardDescription>
-            Upcoming slots shown in your timezone ({appTimezone.replace(/_/g, " ")})
+            Upcoming slots from all queues, shown in {appTimezone.replace(/_/g, " ")}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
-          {previewLoading ? (
+          {queuesLoading ? (
             <UpcomingSlotsSkeleton />
           ) : upcomingSlots.length === 0 ? (
             <div className="rounded-lg bg-muted p-4 text-center">
@@ -519,11 +536,16 @@ export default function QueuePage() {
                 key={i}
                 className="flex items-center justify-between rounded-lg bg-muted p-3"
               >
-                <span className="text-sm">
-                  {formatInAppTimezone(slot, "EEEE, MMM d")}
-                </span>
+                <div className="flex flex-col">
+                  <span className="text-sm">
+                    {formatInAppTimezone(slot.time, "EEEE, MMM d")}
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    {slot.queueName}
+                  </span>
+                </div>
                 <Badge variant="outline">
-                  {formatInAppTimezone(slot, "h:mm a")}
+                  {formatInAppTimezone(slot.time, "h:mm a")}
                 </Badge>
               </div>
             ))
