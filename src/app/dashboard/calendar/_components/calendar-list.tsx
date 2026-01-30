@@ -12,7 +12,7 @@ import { PlatformIcon } from "@/components/shared/platform-icon";
 import { PostStatusBadge } from "@/components/posts";
 import { cn } from "@/lib/utils";
 import type { Platform } from "@/lib/late-api";
-import { Clock, ImageIcon, Video } from "lucide-react";
+import { Clock, Video } from "lucide-react";
 
 interface Post {
   _id: string;
@@ -125,9 +125,9 @@ export function CalendarList({
                 onClick={() => onPostClick(post._id)}
                 className="flex w-full gap-3 p-4 text-left transition-colors hover:bg-accent/50 active:bg-accent"
               >
-                {/* Thumbnail or placeholder */}
-                {post.mediaItems?.[0] ? (
-                  <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-muted">
+                {/* Thumbnail - only show if media exists */}
+                {post.mediaItems?.[0] && (
+                  <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-muted">
                     <img
                       src={post.mediaItems[0].url}
                       alt=""
@@ -143,10 +143,6 @@ export function CalendarList({
                         +{post.mediaItems.length - 1}
                       </div>
                     )}
-                  </div>
-                ) : (
-                  <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-muted">
-                    <ImageIcon className="h-5 w-5 text-muted-foreground/50" />
                   </div>
                 )}
 

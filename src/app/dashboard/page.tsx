@@ -115,7 +115,7 @@ export default function DashboardPage() {
                 <div className="text-center">
                   <div className="flex items-center justify-center gap-1">
                     <AlertCircle className="h-4 w-4 text-red-500" />
-                    <span className={`text-2xl font-semibold ${failedPosts.length > 0 ? "text-red-600 dark:text-red-400" : ""}`}>
+                    <span className="text-2xl font-semibold text-red-600 dark:text-red-400">
                       {failedPosts.length}
                     </span>
                   </div>
