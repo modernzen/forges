@@ -178,6 +178,7 @@
   border-radius: 50%;
   filter: blur(100px);
   pointer-events: none;
+  z-index: 10;
 }
 
 .gradient-orb-top {
