@@ -14,12 +14,12 @@ interface UsageStats {
 }
 
 interface AuthState {
-  apiKey: string | null;
+  isAuthenticated: boolean;
   usageStats: UsageStats | null;
   isValidating: boolean;
   error: string | null;
   hasHydrated: boolean;
-  setApiKey: (key: string | null) => void;
+  setAuthenticated: (authenticated: boolean) => void;
   setUsageStats: (stats: UsageStats | null) => void;
   setIsValidating: (validating: boolean) => void;
   setError: (error: string | null) => void;
@@ -30,19 +30,19 @@ interface AuthState {
 export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
-      apiKey: null,
+      isAuthenticated: false,
       usageStats: null,
       isValidating: false,
       error: null,
       hasHydrated: false,
-      setApiKey: (key) => set({ apiKey: key, error: null }),
+      setAuthenticated: (authenticated) => set({ isAuthenticated: authenticated, error: null }),
       setUsageStats: (stats) => set({ usageStats: stats }),
       setIsValidating: (validating) => set({ isValidating: validating }),
       setError: (error) => set({ error }),
       setHasHydrated: (hydrated) => set({ hasHydrated: hydrated }),
       logout: () =>
         set({
-          apiKey: null,
+          isAuthenticated: false,
           usageStats: null,
           error: null,
         }),
@@ -50,7 +50,7 @@ export const useAuthStore = create<AuthState>()(
     {
       name: "latewiz-auth",
       partialize: (state) => ({
-        apiKey: state.apiKey,
+        isAuthenticated: state.isAuthenticated,
         usageStats: state.usageStats,
       }),
       onRehydrateStorage: () => (state) => {

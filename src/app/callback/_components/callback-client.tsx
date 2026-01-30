@@ -3,7 +3,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
-import Late from "@getlatedev/node";
 import { useAuthStore } from "@/stores";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -30,15 +29,13 @@ interface EntityData {
 export function CallbackClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { apiKey } = useAuthStore();
+  const { isAuthenticated } = useAuthStore();
 
   const [step, setStep] = useState<CallbackStep>("processing");
   const [error, setError] = useState<string | null>(null);
   const [entityData, setEntityData] = useState<EntityData | null>(null);
 
   const handleEntitySelection = useCallback(async (platform: string, stepType: string) => {
-    if (!apiKey) return;
-    const late = new Late({ apiKey });
     const tempToken = searchParams.get("tempToken");
     const userProfile = searchParams.get("userProfile");
     const connectToken = searchParams.get("connect_token");
@@ -50,38 +47,38 @@ export function CallbackClient() {
       switch (platform) {
         case "facebook":
           if (stepType === "select_page") {
-            const { data } = await late.connect.facebook.listFacebookPages({
+            const response = await fetch("/api/late/connect/facebook/pages", {
               headers: { "X-Connect-Token": connectToken || "" },
             });
+            const data = await response.json();
             entities = (data?.pages || []) as Entity[];
           }
           break;
 
         case "linkedin":
           if (stepType === "select_organization" && pendingDataToken) {
-            const { data } = await late.connect.getPendingOAuthData({
-              query: { token: pendingDataToken },
-            });
+            const response = await fetch(`/api/late/connect/pending?token=${pendingDataToken}`);
+            const data = await response.json();
             entities = (data?.organizations || []) as Entity[];
           }
           break;
 
         case "pinterest":
           if (stepType === "select_board") {
-            const { data } = await late.connect.pinterest.listPinterestBoardsForSelection({
-              query: { tempToken: tempToken || "" },
+            const response = await fetch(`/api/late/connect/pinterest/boards?tempToken=${tempToken}`, {
               headers: { "X-Connect-Token": connectToken || "" },
             });
+            const data = await response.json();
             entities = (data?.boards || []) as Entity[];
           }
           break;
 
         case "googlebusiness":
           if (stepType === "select_location") {
-            const { data } = await late.connect.googleBusiness.listGoogleBusinessLocations({
-              query: { tempToken: tempToken || "" },
+            const response = await fetch(`/api/late/connect/googlebusiness/locations?tempToken=${tempToken}`, {
               headers: { "X-Connect-Token": connectToken || "" },
             });
+            const data = await response.json();
             entities = (data?.locations || []) as Entity[];
           }
           break;
@@ -101,7 +98,7 @@ export function CallbackClient() {
       setError("Failed to load options. Please try again.");
       setStep("error");
     }
-  }, [apiKey, searchParams]);
+  }, [searchParams]);
 
   const handleCallback = useCallback(async () => {
     try {
@@ -110,14 +107,12 @@ export function CallbackClient() {
       const stepParam = searchParams.get("step");
       const errorParam = searchParams.get("error");
 
-      // Handle error
       if (errorParam) {
         setError(errorParam);
         setStep("error");
         return;
       }
 
-      // Simple platforms - direct success
       if (connected) {
         setStep("success");
         toast.success(`${connected} connected successfully!`);
@@ -125,13 +120,11 @@ export function CallbackClient() {
         return;
       }
 
-      // Platforms requiring entity selection
       if (stepParam && platform) {
         await handleEntitySelection(platform, stepParam);
         return;
       }
 
-      // Unknown callback
       setError("Invalid callback parameters");
       setStep("error");
     } catch (err) {
@@ -142,64 +135,71 @@ export function CallbackClient() {
   }, [searchParams, router, handleEntitySelection]);
 
   useEffect(() => {
-    if (!apiKey) {
+    if (!isAuthenticated) {
       router.push("/");
       return;
     }
     handleCallback();
-  }, [apiKey, router, handleCallback]);
+  }, [isAuthenticated, router, handleCallback]);
 
   const handleEntitySelect = async (entityId: string) => {
-    if (!entityData || !apiKey) return;
+    if (!entityData) return;
 
     setStep("processing");
-    const late = new Late({ apiKey });
 
     try {
       const profileId = searchParams.get("profileId") || "";
 
       switch (entityData.platform) {
         case "facebook":
-          await late.connect.facebook.selectFacebookPage({
-            body: {
-              tempToken: entityData.tempToken!,
-              userProfile: entityData.userProfile!,
+          await fetch("/api/late/connect/facebook/pages", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              tempToken: entityData.tempToken,
+              userProfile: entityData.userProfile,
               pageId: entityId,
               profileId,
-            },
+            }),
           });
           break;
 
         case "linkedin":
-          await late.connect.linkedin.selectLinkedInOrganization({
-            body: {
-              tempToken: entityData.tempToken!,
-              userProfile: entityData.userProfile!,
+          await fetch("/api/late/connect/linkedin/organizations", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              tempToken: entityData.tempToken,
+              userProfile: entityData.userProfile,
               organizationId: entityId,
               profileId,
-            },
+            }),
           });
           break;
 
         case "pinterest":
-          await late.connect.pinterest.selectPinterestBoard({
-            body: {
-              tempToken: entityData.tempToken!,
-              userProfile: entityData.userProfile!,
+          await fetch("/api/late/connect/pinterest/boards", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              tempToken: entityData.tempToken,
+              userProfile: entityData.userProfile,
               boardId: entityId,
               profileId,
-            },
+            }),
           });
           break;
 
         case "googlebusiness":
-          await late.connect.googleBusiness.selectGoogleBusinessLocation({
-            body: {
-              tempToken: entityData.tempToken!,
-              userProfile: entityData.userProfile!,
+          await fetch("/api/late/connect/googlebusiness/locations", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              tempToken: entityData.tempToken,
+              userProfile: entityData.userProfile,
               locationId: entityId,
               profileId,
-            },
+            }),
           });
           break;
       }

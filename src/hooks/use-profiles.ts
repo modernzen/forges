@@ -1,6 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useLate } from "./use-late";
-import { useAppStore } from "@/stores";
+import { useAppStore, useAuthStore } from "@/stores";
 import { useEffect } from "react";
 
 export const profileKeys = {
@@ -8,25 +7,23 @@ export const profileKeys = {
   detail: (id: string) => ["profiles", id] as const,
 };
 
-/**
- * Hook to fetch all profiles
- */
 export function useProfiles() {
-  const late = useLate();
+  const { isAuthenticated } = useAuthStore();
   const { defaultProfileId, setDefaultProfileId } = useAppStore();
 
   const query = useQuery({
     queryKey: profileKeys.all,
     queryFn: async () => {
-      if (!late) throw new Error("Not authenticated");
-      const { data, error } = await late.profiles.listProfiles();
-      if (error) throw error;
-      return data;
+      const response = await fetch("/api/late/profiles");
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Failed to fetch profiles");
+      }
+      return response.json();
     },
-    enabled: !!late,
+    enabled: isAuthenticated,
   });
 
-  // Auto-set default profile if not set
   useEffect(() => {
     if (query.data?.profiles?.length && !defaultProfileId) {
       setDefaultProfileId(query.data.profiles[0]._id);
@@ -36,50 +33,44 @@ export function useProfiles() {
   return query;
 }
 
-/**
- * Hook to get the current profile ID (from store or first profile)
- */
 export function useCurrentProfileId(): string | undefined {
   const { defaultProfileId } = useAppStore();
   const { data } = useProfiles();
   return defaultProfileId || data?.profiles?.[0]?._id;
 }
 
-/**
- * Hook to fetch a single profile
- */
 export function useProfile(profileId: string) {
-  const late = useLate();
+  const { isAuthenticated } = useAuthStore();
 
   return useQuery({
     queryKey: profileKeys.detail(profileId),
     queryFn: async () => {
-      if (!late) throw new Error("Not authenticated");
-      const { data, error } = await late.profiles.getProfile({
-        path: { profileId },
-      });
-      if (error) throw error;
-      return data;
+      const response = await fetch(`/api/late/profiles/${profileId}`);
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Failed to fetch profile");
+      }
+      return response.json();
     },
-    enabled: !!late && !!profileId,
+    enabled: isAuthenticated && !!profileId,
   });
 }
 
-/**
- * Hook to create a profile
- */
 export function useCreateProfile() {
-  const late = useLate();
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (name: string) => {
-      if (!late) throw new Error("Not authenticated");
-      const { data, error } = await late.profiles.createProfile({
-        body: { name },
+      const response = await fetch("/api/late/profiles", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name }),
       });
-      if (error) throw error;
-      return data;
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Failed to create profile");
+      }
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: profileKeys.all });
@@ -87,11 +78,7 @@ export function useCreateProfile() {
   });
 }
 
-/**
- * Hook to update a profile
- */
 export function useUpdateProfile() {
-  const late = useLate();
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -104,13 +91,16 @@ export function useUpdateProfile() {
       name?: string;
       timezone?: string;
     }) => {
-      if (!late) throw new Error("Not authenticated");
-      const { data, error } = await late.profiles.updateProfile({
-        path: { profileId },
-        body: { name, timezone },
+      const response = await fetch(`/api/late/profiles/${profileId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, timezone }),
       });
-      if (error) throw error;
-      return data;
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Failed to update profile");
+      }
+      return response.json();
     },
     onSuccess: (_, { profileId }) => {
       queryClient.invalidateQueries({ queryKey: profileKeys.all });

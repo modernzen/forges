@@ -12,9 +12,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { ExternalLink, Key, Loader2 } from "lucide-react";
+import { ExternalLink, Loader2, Zap, AlertCircle } from "lucide-react";
 
 interface ApiKeyModalProps {
   open: boolean;
@@ -23,50 +21,32 @@ interface ApiKeyModalProps {
 
 export function ApiKeyModal({ open, onOpenChange }: ApiKeyModalProps) {
   const router = useRouter();
-  const [apiKey, setApiKey] = useState("");
   const [isValidating, setIsValidating] = useState(false);
-  const { setApiKey: storeApiKey, setUsageStats } = useAuthStore();
+  const [error, setError] = useState<string | null>(null);
+  const { setAuthenticated, setUsageStats } = useAuthStore();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    const trimmedKey = apiKey.trim();
-    if (!trimmedKey) {
-      toast.error("Please enter your API key");
-      return;
-    }
-
-    if (!trimmedKey.startsWith("sk_")) {
-      toast.error("Invalid API key format. It should start with 'sk_'");
-      return;
-    }
-
+  const handleGetStarted = async () => {
     setIsValidating(true);
+    setError(null);
 
     try {
-      const response = await fetch("/api/validate-key", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ apiKey: trimmedKey }),
-      });
-
+      const response = await fetch("/api/auth/check");
       const result = await response.json();
 
-      if (!response.ok || !result.data) {
-        toast.error(result.error || "Invalid API key. Please check and try again.");
+      if (!result.configured) {
+        setError(result.error || "Service not configured. Please contact the administrator.");
         return;
       }
 
-      // Store the API key and usage stats
-      storeApiKey(trimmedKey);
+      setAuthenticated(true);
       setUsageStats(result.data);
 
       toast.success(`Connected to ${result.data.planName} plan`);
       onOpenChange(false);
       router.push("/dashboard");
     } catch (err) {
-      console.error("API key validation error:", err);
-      toast.error("Failed to validate API key. Please try again.");
+      console.error("Auth check error:", err);
+      setError("Failed to connect. Please try again.");
     } finally {
       setIsValidating(false);
     }
@@ -77,42 +57,44 @@ export function ApiKeyModal({ open, onOpenChange }: ApiKeyModalProps) {
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Key className="h-5 w-5" />
-            Connect your Late API Key
+            <Zap className="h-5 w-5" />
+            Get Started with LateWiz
           </DialogTitle>
           <DialogDescription>
-            Enter your Late API key to start scheduling posts across 13
-            platforms.
+            Start scheduling posts across 13 social media platforms with a single interface.
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="apiKey">API Key</Label>
-            <Input
-              id="apiKey"
-              type="password"
-              placeholder="sk_..."
-              value={apiKey}
-              onChange={(e) => setApiKey(e.target.value)}
-              disabled={isValidating}
-              autoComplete="off"
-            />
-            <p className="text-sm text-muted-foreground">
-              Your API key is stored locally in your browser and never sent to
-              our servers.
-            </p>
+        <div className="space-y-4">
+          {error && (
+            <div className="flex items-start gap-3 rounded-lg border border-destructive/50 bg-destructive/10 p-4">
+              <AlertCircle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
+              <div className="text-sm">
+                <p className="font-medium text-destructive">Configuration Error</p>
+                <p className="mt-1 text-muted-foreground">{error}</p>
+              </div>
+            </div>
+          )}
+
+          <div className="rounded-lg border border-border bg-muted/50 p-4">
+            <h4 className="font-medium mb-2">What you can do:</h4>
+            <ul className="text-sm text-muted-foreground space-y-1">
+              <li>- Schedule posts across 13 platforms</li>
+              <li>- Use the visual calendar view</li>
+              <li>- Set up smart posting queues</li>
+              <li>- Upload images and videos</li>
+            </ul>
           </div>
 
           <div className="flex flex-col gap-3">
-            <Button type="submit" disabled={isValidating}>
+            <Button onClick={handleGetStarted} disabled={isValidating}>
               {isValidating ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Validating...
+                  Connecting...
                 </>
               ) : (
-                "Connect"
+                "Get Started"
               )}
             </Button>
 
@@ -122,16 +104,16 @@ export function ApiKeyModal({ open, onOpenChange }: ApiKeyModalProps) {
               asChild
             >
               <a
-                href="https://getlate.dev/dashboard/api-keys"
+                href="https://docs.getlate.dev"
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                Get an API Key
+                Learn More
                 <ExternalLink className="ml-2 h-4 w-4" />
               </a>
             </Button>
           </div>
-        </form>
+        </div>
       </DialogContent>
     </Dialog>
   );

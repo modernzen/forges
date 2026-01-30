@@ -69,7 +69,7 @@ export default function DashboardLayout({
 }) {
   const router = useRouter();
   const pathname = usePathname();
-  const { apiKey, usageStats, logout, hasHydrated } = useAuthStore();
+  const { isAuthenticated, usageStats, logout, hasHydrated } = useAuthStore();
   const { defaultProfileId, setDefaultProfileId } = useAppStore();
   const { theme, setTheme } = useTheme();
   const { data: profilesData } = useProfiles();
@@ -77,20 +77,18 @@ export default function DashboardLayout({
   const profiles = profilesData?.profiles || [];
   const currentProfile = profiles.find((p: any) => p._id === defaultProfileId) || profiles[0];
 
-  // Redirect to home if not authenticated (only after hydration)
   useEffect(() => {
-    if (hasHydrated && !apiKey) {
+    if (hasHydrated && !isAuthenticated) {
       router.push("/");
     }
-  }, [apiKey, hasHydrated, router]);
+  }, [isAuthenticated, hasHydrated, router]);
 
   const handleLogout = () => {
     logout();
     router.push("/");
   };
 
-  // Don't render until hydrated to avoid flash
-  if (!hasHydrated || !apiKey) {
+  if (!hasHydrated || !isAuthenticated) {
     return null;
   }
 
@@ -262,7 +260,7 @@ export default function DashboardLayout({
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon" className="h-8 w-8 p-0">
                   <img
-                    src={getAvatarUrl(apiKey || "user", "bottts")}
+                    src={getAvatarUrl("user", "bottts")}
                     alt="User avatar"
                     className="h-7 w-7 rounded-full"
                   />

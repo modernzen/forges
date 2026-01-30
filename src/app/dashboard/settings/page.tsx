@@ -1,13 +1,12 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
 import { useAuthStore, useAppStore } from "@/stores";
 import { getTimezoneOptions } from "@/lib/timezones";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -32,12 +31,9 @@ import { Key, Moon, Sun, Globe, Trash2, ExternalLink } from "lucide-react";
 export default function SettingsPage() {
   const router = useRouter();
   const { theme, setTheme } = useTheme();
-  const { apiKey, usageStats, logout } = useAuthStore();
+  const { usageStats, logout } = useAuthStore();
   const { timezone, setTimezone } = useAppStore();
 
-  const [showApiKey, setShowApiKey] = useState(false);
-
-  // Compute timezone options - always includes user's browser timezone and current selection
   const timezoneOptions = useMemo(
     () => getTimezoneOptions(timezone),
     [timezone]
@@ -48,13 +44,8 @@ export default function SettingsPage() {
     router.push("/");
   };
 
-  const maskedApiKey = apiKey
-    ? `${apiKey.slice(0, 7)}${"•".repeat(20)}${apiKey.slice(-4)}`
-    : "";
-
   return (
     <div className="mx-auto max-w-2xl space-y-4 sm:space-y-6">
-      {/* Page header */}
       <div>
         <h1 className="text-xl sm:text-2xl font-bold">Settings</h1>
         <p className="text-muted-foreground">
@@ -62,36 +53,17 @@ export default function SettingsPage() {
         </p>
       </div>
 
-      {/* API Key */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
             <Key className="h-4 w-4" />
-            API Key
+            Account
           </CardTitle>
           <CardDescription>
-            Your Late API key is used to connect to your Late account.
+            View your Late account details and manage your subscription.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label>Current API Key</Label>
-            <div className="flex gap-2">
-              <Input
-                type={showApiKey ? "text" : "password"}
-                value={showApiKey ? apiKey || "" : maskedApiKey}
-                readOnly
-                className="font-mono"
-              />
-              <Button
-                variant="outline"
-                onClick={() => setShowApiKey(!showApiKey)}
-              >
-                {showApiKey ? "Hide" : "Show"}
-              </Button>
-            </div>
-          </div>
-
           {usageStats && (
             <div className="rounded-lg bg-muted p-4">
               <div className="flex items-center justify-between">
@@ -112,7 +84,7 @@ export default function SettingsPage() {
                   <span className="text-muted-foreground">Uploads</span>
                   <span>
                     {usageStats.limits.uploads < 0 ? (
-                      <>{usageStats.usage.uploads.toLocaleString()} / ∞</>
+                      <>{usageStats.usage.uploads.toLocaleString()} / Unlimited</>
                     ) : (
                       <>{usageStats.usage.uploads.toLocaleString()} / {usageStats.limits.uploads.toLocaleString()}</>
                     )}
@@ -122,7 +94,7 @@ export default function SettingsPage() {
                   <span className="text-muted-foreground">Profiles</span>
                   <span>
                     {usageStats.limits.profiles < 0 ? (
-                      <>{usageStats.usage.profiles.toLocaleString()} / ∞</>
+                      <>{usageStats.usage.profiles.toLocaleString()} / Unlimited</>
                     ) : (
                       <>{usageStats.usage.profiles.toLocaleString()} / {usageStats.limits.profiles.toLocaleString()}</>
                     )}
@@ -134,18 +106,17 @@ export default function SettingsPage() {
 
           <Button variant="outline" asChild>
             <a
-              href="https://getlate.dev/dashboard/api-keys"
+              href="https://getlate.dev/dashboard"
               target="_blank"
               rel="noopener noreferrer"
             >
-              Manage API Keys
+              Open Late Dashboard
               <ExternalLink className="ml-2 h-4 w-4" />
             </a>
           </Button>
         </CardContent>
       </Card>
 
-      {/* Appearance */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
@@ -177,7 +148,6 @@ export default function SettingsPage() {
         </CardContent>
       </Card>
 
-      {/* Timezone */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
@@ -210,7 +180,6 @@ export default function SettingsPage() {
         </CardContent>
       </Card>
 
-      {/* Danger Zone */}
       <Card className="border-destructive/50">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base text-destructive">
@@ -230,8 +199,7 @@ export default function SettingsPage() {
               <AlertDialogHeader>
                 <AlertDialogTitle>Sign Out</AlertDialogTitle>
                 <AlertDialogDescription>
-                  This will remove your API key from this device. You&apos;ll need
-                  to enter it again to use LateWiz.
+                  This will sign you out of LateWiz. You can sign back in at any time.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
@@ -248,7 +216,6 @@ export default function SettingsPage() {
         </CardContent>
       </Card>
 
-      {/* About */}
       <Card>
         <CardContent className="pt-6">
           <div className="text-center text-sm text-muted-foreground">
@@ -273,7 +240,7 @@ export default function SettingsPage() {
               >
                 View on GitHub
               </a>
-              {" · "}
+              {" . "}
               <a
                 href="https://github.com/getlate-dev/latewiz/issues"
                 target="_blank"

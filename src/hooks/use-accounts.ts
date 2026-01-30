@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useLate } from "./use-late";
 import { useCurrentProfileId } from "./use-profiles";
+import { useAuthStore } from "@/stores";
 import type { Platform } from "@/lib/late-api";
 
 export const accountKeys = {
@@ -28,55 +28,51 @@ export interface AccountHealth {
   error?: string;
 }
 
-/**
- * Hook to fetch all accounts for the current profile
- */
 export function useAccounts(profileId?: string) {
-  const late = useLate();
+  const { isAuthenticated } = useAuthStore();
   const currentProfileId = useCurrentProfileId();
   const targetProfileId = profileId || currentProfileId;
 
   return useQuery({
     queryKey: accountKeys.list(targetProfileId || ""),
     queryFn: async () => {
-      if (!late) throw new Error("Not authenticated");
-      const { data, error } = await late.accounts.listAccounts({
-        query: { profileId: targetProfileId },
-      });
-      if (error) throw error;
-      return data;
+      const params = new URLSearchParams();
+      if (targetProfileId) params.set("profileId", targetProfileId);
+
+      const response = await fetch(`/api/late/accounts?${params}`);
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Failed to fetch accounts");
+      }
+      return response.json();
     },
-    enabled: !!late && !!targetProfileId,
+    enabled: isAuthenticated && !!targetProfileId,
   });
 }
 
-/**
- * Hook to fetch account health status
- */
 export function useAccountsHealth(profileId?: string) {
-  const late = useLate();
+  const { isAuthenticated } = useAuthStore();
   const currentProfileId = useCurrentProfileId();
   const targetProfileId = profileId || currentProfileId;
 
   return useQuery({
     queryKey: accountKeys.health(targetProfileId || ""),
     queryFn: async () => {
-      if (!late) throw new Error("Not authenticated");
-      const { data, error } = await late.accounts.getAllAccountsHealth({
-        query: { profileId: targetProfileId },
-      });
-      if (error) throw error;
-      return data;
+      const params = new URLSearchParams();
+      if (targetProfileId) params.set("profileId", targetProfileId);
+
+      const response = await fetch(`/api/late/accounts/health?${params}`);
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Failed to fetch accounts health");
+      }
+      return response.json();
     },
-    enabled: !!late && !!targetProfileId,
+    enabled: isAuthenticated && !!targetProfileId,
   });
 }
 
-/**
- * Hook to start OAuth connection flow
- */
 export function useConnectAccount() {
-  const late = useLate();
   const currentProfileId = useCurrentProfileId();
 
   return useMutation({
@@ -87,39 +83,37 @@ export function useConnectAccount() {
       platform: Platform;
       profileId?: string;
     }) => {
-      if (!late) throw new Error("Not authenticated");
       const targetProfileId = profileId || currentProfileId;
       if (!targetProfileId) throw new Error("No profile selected");
 
       const redirectUrl = `${window.location.origin}/callback`;
-      const { data, error } = await late.connect.getConnectUrl({
-        path: { platform },
-        query: {
-          profileId: targetProfileId,
-          redirect_url: redirectUrl,
-          headless: true,
-        },
+      const params = new URLSearchParams({
+        profileId: targetProfileId,
+        redirect_url: redirectUrl,
       });
-      if (error) throw error;
-      return data;
+
+      const response = await fetch(`/api/late/connect/${platform}?${params}`);
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Failed to get connect URL");
+      }
+      return response.json();
     },
   });
 }
 
-/**
- * Hook to delete/disconnect an account
- */
 export function useDeleteAccount() {
-  const late = useLate();
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (accountId: string) => {
-      if (!late) throw new Error("Not authenticated");
-      const { error } = await late.accounts.deleteAccount({
-        path: { accountId },
+      const response = await fetch(`/api/late/accounts/${accountId}`, {
+        method: "DELETE",
       });
-      if (error) throw error;
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Failed to delete account");
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: accountKeys.all });
@@ -127,9 +121,6 @@ export function useDeleteAccount() {
   });
 }
 
-/**
- * Hook to get accounts grouped by platform
- */
 export function useAccountsByPlatform(profileId?: string) {
   const { data, ...rest } = useAccounts(profileId);
 
