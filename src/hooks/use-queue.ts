@@ -389,28 +389,10 @@ export function formatQueueSlot(slot: QueueSlot): string {
   return `${day} at ${slot.time}`;
 }
 
-/**
- * Common timezones for quick selection
- */
-export const COMMON_TIMEZONES = [
-  "America/New_York",
-  "America/Chicago",
-  "America/Denver",
-  "America/Los_Angeles",
-  "America/Anchorage",
-  "Pacific/Honolulu",
-  "Europe/London",
-  "Europe/Paris",
-  "Europe/Berlin",
-  "Asia/Tokyo",
-  "Asia/Shanghai",
-  "Asia/Singapore",
-  "Australia/Sydney",
-] as const;
-
-/**
- * Get user's current timezone
- */
-export function getUserTimezone(): string {
-  return Intl.DateTimeFormat().resolvedOptions().timeZone;
-}
+// Re-export timezone utilities from lib for convenience
+export {
+  COMMON_TIMEZONES,
+  getUserTimezone,
+  getTimezoneOptions,
+  formatTimezoneDisplay,
+} from "@/lib/timezones";

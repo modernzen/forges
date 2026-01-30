@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Link from "next/link";
 import { format } from "date-fns/format";
 import { parseISO } from "date-fns/parseISO";
@@ -13,8 +13,8 @@ import {
   useDeleteQueue,
   useScheduledPosts,
   DAYS_OF_WEEK,
-  COMMON_TIMEZONES,
   getUserTimezone,
+  getTimezoneOptions,
   formatTime,
   parseTime,
   type QueueSlot,
@@ -106,6 +106,12 @@ export default function QueuePage() {
   const upcomingSlots = (previewData?.slots || []) as string[];
   const queuedPosts = ((postsData?.posts || []) as any[]).filter(
     (p) => p.queuedFromProfile
+  );
+
+  // Compute timezone options - always include user's timezone and selected queue's timezone
+  const timezoneOptions = useMemo(
+    () => getTimezoneOptions(selectedQueue?.timezone, editQueueTimezone),
+    [selectedQueue?.timezone, editQueueTimezone]
   );
 
   const handleCreateQueue = async () => {
@@ -584,7 +590,7 @@ export default function QueuePage() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {COMMON_TIMEZONES.map((tz) => (
+                  {timezoneOptions.map((tz) => (
                     <SelectItem key={tz} value={tz}>
                       {tz}
                     </SelectItem>
@@ -712,7 +718,7 @@ export default function QueuePage() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {COMMON_TIMEZONES.map((tz) => (
+                  {timezoneOptions.map((tz) => (
                     <SelectItem key={tz} value={tz}>
                       {tz}
                     </SelectItem>

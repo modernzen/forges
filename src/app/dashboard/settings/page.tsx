@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
 import { useAuthStore, useAppStore } from "@/stores";
+import { getTimezoneOptions } from "@/lib/timezones";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,26 +29,6 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Key, Moon, Sun, Globe, Trash2, ExternalLink } from "lucide-react";
 
-// Common timezones
-const TIMEZONES = [
-  "UTC",
-  "America/New_York",
-  "America/Chicago",
-  "America/Denver",
-  "America/Los_Angeles",
-  "America/Sao_Paulo",
-  "Europe/London",
-  "Europe/Paris",
-  "Europe/Berlin",
-  "Europe/Madrid",
-  "Asia/Tokyo",
-  "Asia/Shanghai",
-  "Asia/Singapore",
-  "Asia/Dubai",
-  "Australia/Sydney",
-  "Pacific/Auckland",
-];
-
 export default function SettingsPage() {
   const router = useRouter();
   const { theme, setTheme } = useTheme();
@@ -55,6 +36,12 @@ export default function SettingsPage() {
   const { timezone, setTimezone } = useAppStore();
 
   const [showApiKey, setShowApiKey] = useState(false);
+
+  // Compute timezone options - always includes user's browser timezone and current selection
+  const timezoneOptions = useMemo(
+    () => getTimezoneOptions(timezone),
+    [timezone]
+  );
 
   const handleLogout = () => {
     logout();
@@ -209,7 +196,7 @@ export default function SettingsPage() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {TIMEZONES.map((tz) => (
+                {timezoneOptions.map((tz) => (
                   <SelectItem key={tz} value={tz}>
                     {tz.replace(/_/g, " ")}
                   </SelectItem>
