@@ -22,12 +22,6 @@ import {
   Sun,
   Github,
 } from "lucide-react";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
 import { useTheme } from "next-themes";
 
 export default function LandingPage() {
@@ -236,7 +230,7 @@ export default function LandingPage() {
       </section>
 
       {/* Features Section */}
-      <section className="border-t border-border bg-muted/50 py-20">
+      <section className="bg-muted/50 py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h2 className="text-3xl font-bold">Everything you need</h2>
@@ -274,23 +268,19 @@ export default function LandingPage() {
             </p>
           </div>
 
-          <Accordion type="single" collapsible className="mt-12">
+          <div className="mt-12 space-y-6">
             {faqs.map((faq, index) => (
-              <AccordionItem key={index} value={`item-${index}`}>
-                <AccordionTrigger className="text-left">
-                  {faq.question}
-                </AccordionTrigger>
-                <AccordionContent className="text-muted-foreground">
-                  {faq.answer}
-                </AccordionContent>
-              </AccordionItem>
+              <div key={index} className="rounded-lg border border-border bg-card p-6">
+                <h3 className="font-semibold">{faq.question}</h3>
+                <p className="mt-2 text-muted-foreground">{faq.answer}</p>
+              </div>
             ))}
-          </Accordion>
+          </div>
         </div>
       </section>
 
       {/* Open Source Section */}
-      <section className="border-t border-border py-20">
+      <section className="py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="rounded-2xl border border-border bg-card p-8 text-center sm:p-12">
             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-muted">
